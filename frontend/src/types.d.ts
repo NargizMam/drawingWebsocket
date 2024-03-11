@@ -1,1 +1,12 @@
-// {"type": "SET_PIXEL", "payload": {"username": "John", "pixel": {"x": "100", "y": "200"}}}
+export interface Pixel {
+    x: string;
+    y: string;
+}
+export interface IncomingPixel {
+    type: string;
+    payload: {
+        username: string,
+        pixel: Pixel
+    }
+
+}

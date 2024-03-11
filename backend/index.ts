@@ -1,7 +1,7 @@
 import express from 'express';
 import expressWs from 'express-ws';
 import cors from 'cors';
-import {ActiveConnections, IncomingPixelMessage} from "./types";
+import { ActiveConnections, IncomingPixelMessage } from "./types";
 import crypto from "crypto";
 
 const app = express();
@@ -18,14 +18,12 @@ const existingPixelsArray: IncomingPixelMessage[] = [];
 drawingRouter.ws('/drawing', (ws, _req) => {
     const id = crypto.randomUUID();
     activeConnections[id] = ws;
-    ws.send(JSON.stringify(existingPixelsArray));
+    ws.send(JSON.stringify({ type: 'INITIAL_PIXELS', pixels: existingPixelsArray }));
 
-    ws.on('message', (msg: IncomingPixelMessage) => {
+    ws.on('message', (msg: string) => {
         try {
-            const parsedMessage = JSON.parse(msg.toString()) as IncomingPixelMessage;
-            if (parsedMessage.type === 'SET_PIXEL') {
-
-            } else if (parsedMessage.type === 'SEND_PIXEL') {
+            const parsedMessage = JSON.parse(msg) as IncomingPixelMessage;
+            if (parsedMessage.type === 'NEW_PIXEL') {
                 existingPixelsArray.push(parsedMessage);
                 Object.values(activeConnections).forEach(connection => {
                     const outgoingMsg: IncomingPixelMessage = {
