@@ -1,6 +1,6 @@
 export interface Pixel {
-    x: string;
-    y: string;
+    x: number;
+    y: number;
 }
 export interface IncomingPixel {
     type: string;

@@ -1,8 +1,9 @@
 import express from 'express';
 import expressWs from 'express-ws';
 import cors from 'cors';
-import { ActiveConnections, IncomingPixelMessage } from "./types";
+import {ActiveConnections, IncomingPixelMessage} from "./types";
 import crypto from "crypto";
+import {log} from "util";
 
 const app = express();
 expressWs(app);
@@ -15,14 +16,14 @@ const drawingRouter = express.Router();
 const activeConnections: ActiveConnections = {};
 const existingPixelsArray: IncomingPixelMessage[] = [];
 
-drawingRouter.ws('/drawing', (ws, _req) => {
+drawingRouter.ws('/', (ws, _req) => {
     const id = crypto.randomUUID();
     activeConnections[id] = ws;
     ws.send(JSON.stringify({ type: 'INITIAL_PIXELS', pixels: existingPixelsArray }));
 
-    ws.on('message', (msg: string) => {
+    ws.on('message', (payload: string) => {
         try {
-            const parsedMessage = JSON.parse(msg) as IncomingPixelMessage;
+            const parsedMessage = JSON.parse(payload) as IncomingPixelMessage;
             if (parsedMessage.type === 'NEW_PIXEL') {
                 existingPixelsArray.push(parsedMessage);
                 Object.values(activeConnections).forEach(connection => {
@@ -30,6 +31,7 @@ drawingRouter.ws('/drawing', (ws, _req) => {
                         type: 'NEW_PIXEL',
                         payload: parsedMessage.payload,
                     };
+                    console.log(outgoingMsg)
                     connection.send(JSON.stringify(outgoingMsg));
                 });
             }
@@ -42,6 +44,7 @@ drawingRouter.ws('/drawing', (ws, _req) => {
         console.log('Client disconnected!');
         delete activeConnections[id];
     });
+
 });
 app.use('/drawing', drawingRouter);
 

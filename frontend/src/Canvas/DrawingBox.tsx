@@ -1,7 +1,10 @@
 import './Drawing.css';
+import React, { useState, useEffect, useRef } from 'react';
+import { Pixel } from "../types";
+
 const DrawingBox = () => {
     const ws = useRef<WebSocket | null>(null);
-    const [pixels, setPixels] = useState<{ x: number; y: number }[]>([]);
+    const [pixels, setPixels] = useState<Pixel[]>([]);
 
     useEffect(() => {
         ws.current = new WebSocket('ws://localhost:8000/drawing');
@@ -9,13 +12,14 @@ const DrawingBox = () => {
         ws.current.onopen = () => {
             console.log('Connected to server');
         };
+        ws.current.onclose = () => console.log("ws closed");
 
         ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === 'INITIAL_PIXELS') {
                 setPixels(data.pixels);
             } else if (data.type === 'NEW_PIXEL') {
-                setPixels((prevPixels) => [...prevPixels, data.pixel]);
+                setPixels((prevPixels: Pixel[]) => [...prevPixels, data.payload.pixel]);
             }
         };
 
@@ -29,7 +33,7 @@ const DrawingBox = () => {
     const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         if (!ws.current) return;
         const pixel = { x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY };
-        ws.current.send(JSON.stringify({ type: 'NEW_PIXEL', pixel: pixel }));
+        ws.current.send(JSON.stringify({ type: 'NEW_PIXEL', payload: { pixel: pixel } }));
     };
 
     return (
@@ -40,6 +44,5 @@ const DrawingBox = () => {
     );
 };
 
-import React, {useState, useEffect, useRef} from 'react';
-
 export default DrawingBox;
+
