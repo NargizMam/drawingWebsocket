@@ -5,7 +5,7 @@ import './Drawing.css';
 const DrawingBox = () => {
     const ws = useRef<WebSocket | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [pixels, setPixels] = useState<Pixel[]>([]);
+    const [_pixels, setPixels] = useState<Pixel[]>([]);
     const [isDrawing, setIsDrawing] = useState<boolean>(false);
     const [prevPos, setPrevPos] = useState<{ x: number; y: number } | null>(null);
 
@@ -14,7 +14,6 @@ const DrawingBox = () => {
 
         ws.current.onopen = () => {
             console.log('Connected to server');
-            console.log(pixels)
         };
         ws.current.onclose = () => console.log("ws closed");
 
@@ -58,9 +57,9 @@ const DrawingBox = () => {
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         if (!ws.current) return;
         setIsDrawing(true);
-        const pixel = { x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY };
-        ws.current.send(JSON.stringify({ type: 'NEW_PIXEL', payload: { pixel: pixel } }));
-        setPrevPos({ x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY });
+        const pixel = {x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY};
+        ws.current.send(JSON.stringify({type: 'NEW_PIXEL', payload: {pixel: pixel}}));
+        setPrevPos({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY});
     };
 
     const handleMouseUp = () => {
@@ -70,10 +69,10 @@ const DrawingBox = () => {
 
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         if (!ws.current || !isDrawing || !prevPos) return;
-        const pixel = { x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY };
-        ws.current.send(JSON.stringify({ type: 'NEW_PIXEL', payload: { pixel: pixel } }));
+        const pixel = {x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY};
+        ws.current.send(JSON.stringify({type: 'NEW_PIXEL', payload: {pixel: pixel}}));
         drawLine(prevPos, pixel);
-        setPrevPos({ x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY });
+        setPrevPos({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY});
     };
 
     const drawLine = (startPos: { x: number; y: number }, endPos: { x: number; y: number }) => {
