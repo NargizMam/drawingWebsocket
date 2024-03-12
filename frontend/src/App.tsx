@@ -1,4 +1,4 @@
-import DrawingBox from "./Canvas/DrawingBox.tsx";
+import DrawingBox from "./Drawing/DrawingBox.tsx";
 
 const App = () => {
     return (

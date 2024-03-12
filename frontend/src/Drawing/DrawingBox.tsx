@@ -20,11 +20,11 @@ const DrawingBox = () => {
         ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === 'INITIAL_PIXELS') {
-                setPixels(data.pixels);
-                redrawPixels(data.pixels);
+                setPixels(p => p.concat(data.payload));
+                redrawPixels(data.payload);
             } else if (data.type === 'NEW_PIXEL') {
-                setPixels((prevPixels: Pixel[]) => [...prevPixels, data.payload.pixel]);
-                redrawPixel(data.payload.pixel);
+                setPixels((prevPixels: Pixel[]) => [...prevPixels, data.payload]);
+                redrawPixel(data.payload);
             }
         };
 
@@ -58,7 +58,7 @@ const DrawingBox = () => {
         if (!ws.current) return;
         setIsDrawing(true);
         const pixel = {x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY};
-        ws.current.send(JSON.stringify({type: 'NEW_PIXEL', payload: {pixel: pixel}}));
+        ws.current.send(JSON.stringify({type: 'NEW_PIXEL', payload: pixel}));
         setPrevPos({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY});
     };
 
@@ -70,7 +70,7 @@ const DrawingBox = () => {
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         if (!ws.current || !isDrawing || !prevPos) return;
         const pixel = {x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY};
-        ws.current.send(JSON.stringify({type: 'NEW_PIXEL', payload: {pixel: pixel}}));
+        ws.current.send(JSON.stringify({type: 'NEW_PIXEL', payload: pixel}));
         drawLine(prevPos, pixel);
         setPrevPos({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY});
     };

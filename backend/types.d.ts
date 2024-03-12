@@ -1,18 +1,13 @@
-import {WebSocket} from "ws";
+import { WebSocket } from 'ws';
 
 export interface ActiveConnections {
-    [id: string]: WebSocket
+  [id: string]: WebSocket;
 }
 export interface Pixel {
-    x: string;
-    y: string;
+  x: string;
+  y: string;
 }
 export interface IncomingPixelMessage {
-    type: string;
-    payload: {
-        username: string,
-        pixel: Pixel
-    }
-
+  type: string;
+  payload: Pixel;
 }
-
